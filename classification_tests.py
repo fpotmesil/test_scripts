@@ -142,14 +142,15 @@ print( "Decision Tree Accuracy: {}, Recall: {}, Precision: {}".format(
 #
 from xgboost import XGBClassifier
 #
-# hyperparameter dictionary
+# XGBoost hyperparameter dictionary
 # change max_depth to 2 and it matches the decision tree!
 #
-params = {'objective': 'binary:logistic',
-        'max_depth': 4,
+xgb_params = {
+        'objective': 'binary:logistic',
+        'max_depth': 2,
         'learning_rate': 0.1,
         'n_estimators': 50}
-xgb_classifier = XGBClassifier(**params)
+xgb_classifier = XGBClassifier(**xgb_params)
 xgb_classifier.fit(X_train, y_train)
 print("XGB Classifier: ")
 print(xgb_classifier.get_params())
@@ -168,6 +169,92 @@ recall = metrics.recall_score(y_test, y_pred)
 precision = metrics.precision_score(y_test, y_pred)
 print( "XGBoost Accuracy: {}, Recall: {}, Precision: {}".format(
     accuracy, recall, precision))
+
+#
+# Random Forest Classifier
+#
+from sklearn.ensemble import RandomForestClassifier
+#
+# random forest hyperparameters
+#
+rand_forest_params = {
+        'n_estimators': 10,
+        'max_depth': 3,
+        'criterion': 'entropy',
+        'random_state': 0}
+
+print("Random Forest Classifier: ")
+random_forest_classifier = RandomForestClassifier(**rand_forest_params)
+print(random_forest_classifier.get_params())
+random_forest_classifier.fit(X_train, y_train)
+y_pred = random_forest_classifier.predict(X_test)
+random_forest_metrics = metrics.confusion_matrix(y_test, y_pred)
+print("Random Forest Confusion Matrix:")
+print(random_forest_metrics)
+#
+# Finally calculate the accuracy, recall, and precision 
+# for the Random Forest Classifier
+#
+accuracy = metrics.accuracy_score(y_test, y_pred)
+recall = metrics.recall_score(y_test, y_pred)
+precision = metrics.precision_score(y_test, y_pred)
+print( "Random Forest Accuracy: {}, Recall: {}, Precision: {}".format(
+    accuracy, recall, precision))
+
+
+#
+# Logistic Regression Classifier
+#
+from sklearn.linear_model import LogisticRegression
+logistic_regression_classifier = LogisticRegression(random_state=0)
+print("Logistic Regression Classifier: ")
+print(logistic_regression_classifier.get_params())
+logistic_regression_classifier.fit(X_train, y_train)
+y_pred = logistic_regression_classifier.predict(X_test)
+logistic_regression_confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
+print("Logistic Regression Confusion Matrix:")
+print(logistic_regression_confusion_matrix)
+#
+# Finally calculate the accuracy, recall, and precision 
+# for the Logistic Regression Classifier
+#
+accuracy = metrics.accuracy_score(y_test, y_pred)
+recall = metrics.recall_score(y_test, y_pred)
+precision = metrics.precision_score(y_test, y_pred)
+print( "Logistic Regression Accuracy: {}, Recall: {}, Precision: {}".format(
+    accuracy, recall, precision))
+
+
+#
+# Support Vector Machine Classifier
+#
+from sklearn.svm import SVC
+svm_classifier = SVC(kernel='linear', random_state=0)
+print("Support Vector Machine Classifier: ")
+print(svm_classifier.get_params())
+svm_classifier.fit(X_train, y_train)
+y_pred = svm_classifier.predict(X_test)
+svm_confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
+print("Support Vector Machine Confusion Matrix:")
+print(svm_confusion_matrix)
+#
+# Finally calculate the accuracy, recall, and precision 
+# for the Logistic Regression Classifier
+#
+accuracy = metrics.accuracy_score(y_test, y_pred)
+recall = metrics.recall_score(y_test, y_pred)
+precision = metrics.precision_score(y_test, y_pred)
+print( "Support Vector Machine Accuracy: {}, Recall: {}, Precision: {}".format(
+    accuracy, recall, precision))
+
+
+
+
+
+
+
+
+
 
 
 
