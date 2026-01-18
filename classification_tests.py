@@ -248,6 +248,32 @@ print( "Support Vector Machine Accuracy: {}, Recall: {}, Precision: {}".format(
     accuracy, recall, precision))
 
 
+#
+# Gaussian Naive Bayes Classifier
+#
+from sklearn.naive_bayes import GaussianNB
+gaussian_nb_classifier = GaussianNB()
+gaussian_nb_classifier.fit(X_train, y_train)
+
+print("Gaussian Naive Bayes Classifier: ")
+print(gaussian_nb_classifier.get_params())
+
+y_pred = gaussian_nb_classifier.predict(X_test)
+gaussian_nb_confusion_matrix = metrics.confusion_matrix(y_test, y_pred)
+print("Gaussian Naive Bayes Confusion Matrix:")
+print(gaussian_nb_confusion_matrix)
+
+#
+# Finally calculate the accuracy, recall, and precision 
+# for the Gaussian Naive Bayes Classifier
+#
+accuracy = metrics.accuracy_score(y_test, y_pred)
+recall = metrics.recall_score(y_test, y_pred)
+precision = metrics.precision_score(y_test, y_pred)
+print( "Gaussian Naive Bayes Accuracy: {}, Recall: {}, Precision: {}".format(
+    accuracy, recall, precision))
+
+
 
 
 
