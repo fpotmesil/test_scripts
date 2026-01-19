@@ -32,7 +32,7 @@ import sklearn.metrics as metrics
 #
 print("The sklearn version we are working with is {}".format(sklearn.__version__))
 
-dataset = pd.read_csv('Chapter07/Social_Network_Ads.csv')
+dataset = pd.read_csv('Social_Network_Ads.csv')
 print( dataset.head(10) )
 
 dataset = dataset.drop(columns=['User ID'])
