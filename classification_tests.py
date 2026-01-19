@@ -14,7 +14,17 @@ import sklearn.metrics as metrics
 # windows: ".\FredsVenv\Scripts\activate.bat"
 # linux: "source ./FredsVenv/bin/activate.
 # examine the code for activate and see what it is doing!
+#
+# to install dependencies with the correct versions,
+# activate the virtual environment and 
+# pip install -r classification_tests_requirements.txt
+# 
 # when you are done playing, simply 'deactivate' the virtual environment.
+#
+# For these simple examples the resulting accuracy, recall, and precision
+# are all dramatically affected by changing parameters to the classifiers!
+#
+# tree depth really makes a difference, will test with more complex datasets
 #
 
 ## name = input("Hello, what's your name?  ")
