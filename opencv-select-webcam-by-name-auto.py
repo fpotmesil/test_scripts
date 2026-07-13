@@ -61,20 +61,43 @@ def open_camera_by_index(index):
     Opens the camera with the given index and displays the feed.
     """
     cap = cv2.VideoCapture(index, cv2.CAP_DSHOW if platform.system() == "Windows" else 0)
+
     if not cap.isOpened():
         print(f"Error: Cannot open camera index {index}")
         return
 
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_size = (width, height)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter("webcam_output.mp4", fourcc, 20.0, frame_size)
+
     print(f"Opened camera index {index}. Press 'q' to quit.")
+
     while True:
         ret, frame = cap.read()
+
         if not ret:
             print("Failed to grab frame.")
             break
+
+        gray_scale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        cv2.imshow("gray scale", gray_scale)
         cv2.imshow(f"Camera {index}", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+
+        #
+        # determine webcam size
+        #
+        ## print(frame.shape)
+        out.write(frame)
+
+        key = cv2.waitKey(1) ## & 0xFF
+
+        if key == 27 or key == 113: ##ord('q'):
+            print("Stopping recording and terminating")
             break
 
+    out.release()
     cap.release()
     cv2.destroyAllWindows()
 
