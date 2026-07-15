@@ -5,6 +5,11 @@ from ultralytics import YOLO
 #
 # pip install ultralytics opencv-python torch torchvision torchaudio
 #
+#
+# https://github.com/ultralytics/assets/releases
+#
+# https://developer.nvidia.com/computer-vision-sdk
+#
 
 def main():
     # Check if GPU is available
