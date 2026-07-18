@@ -3,18 +3,37 @@ import cv2
 from onvif import ONVIFCamera
 from wsdiscovery import WSDiscovery
 import getpass
+from urllib.parse import urlparse, urlunparse, quote
 
 #
-# pip install opencv-python onvif_zeep ws-discovery
+# pip install opencv-python onvif_zeep WSDiscovery
 #
 # 
 #
+
+
+def insert_rtsp_credentials(rtsp_url, username, password):
+    # Encode special characters in username and password
+    encoded_user = quote(username, safe='')
+    encoded_pass = quote(password, safe='')
+    
+    # Parse URL into components
+    parsed = urlparse(rtsp_url)
+    
+    # Rebuild netloc with credentials
+    new_netloc = f"{encoded_user}:{encoded_pass}@{parsed.hostname}"
+    if parsed.port:
+        new_netloc += f":{parsed.port}"
+        
+    # Reassemble the URL
+    new_parsed = parsed._replace(netloc=new_netloc)
+    return urlunparse(new_parsed)
 
 # Discover ONVIF cameras on the network
 def discover_onvif_cameras(timeout=5):
     wsd = WSDiscovery()
     wsd.start()
-    services = wsd.searchServices(timeout=timeout)
+    services = wsd.searchServices(timeout=timeout, address="192.168.8.1")
     wsd.stop()
 
     cameras = []
@@ -38,6 +57,7 @@ def get_rtsp_url(host, port, user, password):
             },
             'ProfileToken': token
         })
+        print(f"Stream URI: {stream_uri}")
         return stream_uri.Uri
     except Exception as e:
         print(f"❌ Failed to get RTSP URL from {host}: {e}")
@@ -45,18 +65,33 @@ def get_rtsp_url(host, port, user, password):
 
 # Open RTSP stream with OpenCV
 def open_rtsp_stream(rtsp_url):
+
+    window_name = "Amcrest ONVIF Camera Stream"
+
+    # 1. Create a named window that allows resizing
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+
+    # 2. Resize the window to an easily viewable size (Width, Height)
+    cv2.resizeWindow(window_name, 1280, 720)
+    
+    # 3. Start the Video Capture
     cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
+
     if not cap.isOpened():
         print("❌ Cannot open video stream.")
         sys.exit(1)
 
     print("✅ Streaming from:", rtsp_url)
+
     while True:
         ret, frame = cap.read()
+
         if not ret:
             print("⚠️ Failed to grab frame.")
             break
-        cv2.imshow("ONVIF Camera Stream", frame)
+
+        cv2.imshow(window_name, frame)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
@@ -104,8 +139,13 @@ if __name__ == "__main__":
     username = input("Username: ")
     password = getpass.getpass("Password: ")
 
+    print(f"get_rtsp_url(host={host}, port={port}, user={username}, pass={password})")
     # Get RTSP URL and stream
     rtsp_url = get_rtsp_url(host, port, username, password)
-    if rtsp_url:
-        open_rtsp_stream(rtsp_url)
+
+    auth_url = insert_rtsp_credentials(rtsp_url, username, password)
+    print(f"auth url: {auth_url}")
+
+    if auth_url:
+        open_rtsp_stream(auth_url)
 
