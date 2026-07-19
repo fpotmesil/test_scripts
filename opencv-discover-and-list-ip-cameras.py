@@ -10,6 +10,11 @@ from urllib.parse import urlparse, urlunparse, quote
 #
 # 
 #
+# QT Fonts:
+#
+# mkdir -p /home/fred/Cameras/IP_CAM_VENV/lib/python3.14/site-packages/cv2/qt/fonts
+# cp /usr/share/fonts/truetype/dejavu/*.ttf /home/fred/Cameras/IP_CAM_VENV/lib/python3.14/site-packages/cv2/qt/fonts/
+# 
 
 
 def insert_rtsp_credentials(rtsp_url, username, password):
