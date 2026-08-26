@@ -1,8 +1,14 @@
 import torch
+import warnings
 from torch.utils.data import DataLoader
 from torchvision import datasets
 import torchvision.transforms.v2 as T
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+import numpy as np
+
+warnings.filterwarnings("ignore", module="torchvision.datasets.cifar", message="dtype(): align should be passed as Python or NumPy boolean but got `align=0`")
+
 
 '''
 How It Works
@@ -36,7 +42,7 @@ class PixelTranslate(T.Transform):
         self.shift_x = shift_x
         self.shift_y = shift_y
 
-    def _transform(self, inpt, params):
+    def transform(self, inpt, params):
         # inpt is a tensor in (C, H, W)
         if not torch.is_tensor(inpt):
             raise TypeError("Expected input to be a torch.Tensor")
@@ -52,7 +58,7 @@ base_transform = T.Compose([
     T.ToDtype(torch.float32, scale=True),  # Normalize to [0,1]
 ])
 
-translate_transform = PixelTranslate(shift_x=5, shift_y=3)
+translate_transform = PixelTranslate(shift_x=10, shift_y=3)
 
 # --- Custom collate function ---
 def collate_with_translation(batch):
@@ -63,13 +69,47 @@ def collate_with_translation(batch):
     return torch.stack(images), torch.tensor(labels)
 
 # --- Dataset & DataLoader ---
-dataset = datasets.CIFAR10(root="./data", train=True, download=True)
-loader = DataLoader(dataset, batch_size=8, shuffle=True, collate_fn=collate_with_translation)
+training_cifar10 = datasets.CIFAR10(root="./data", train=True, download=True)
+train_images = training_cifar10.data
+train_targets = training_cifar10.targets
+print(f'train_targets len: {len(train_targets)}, set len: {len(set(train_targets))}')
+## unique_training_values = train_targets.unique()
+unique_training_values = len( set(train_targets) )
+
+validation_cifar10 = datasets.CIFAR10(root="./data", train=False, download=True)
+validation_images = validation_cifar10.data
+validation_targets = validation_cifar10.targets
+
+
+print(f'train_images & train_targets list len:\n\tX - {len(train_images)}\n\tY - {len(train_targets)}\n\t\
+Y - Unique Values: {unique_training_values}')
+
+print(f'TASK:\n\t {unique_training_values} class Classification')
+print(f'UNIQUE CLASSES:\n\t {training_cifar10.classes}')
+
+loader = DataLoader(training_cifar10, batch_size=8, shuffle=True,
+        collate_fn=collate_with_translation)
+
 
 # --- Example usage ---
 if __name__ == "__main__":
+
+    loops = 0
+
     for imgs, labels in loader:
         print("Batch images shape:", imgs.shape)  # (B, C, H, W)
         print("Batch labels:", labels)
-        break
+
+        fig, ax = plt.subplots(1, 8, figsize=(10,10))
+        for ix, axis in enumerate(ax.flat):
+            axis.set_title(training_cifar10.classes[labels[ix]])
+            img = imgs[ix]
+            img2 = np.transpose(img, (1,2,0))
+            axis.imshow(img2)
+        plt.tight_layout()
+        plt.show()
+
+        loops += 1
+        if loops > 4:
+            break
 

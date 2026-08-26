@@ -69,6 +69,8 @@ if __name__ == "__main__":
         print("Batch images shape:", imgs.shape)  # (B, C, H, W)
         print("Batch labels:", labels)
         break
+
+'''
 How It Works
 Zero Padding:
 
@@ -82,4 +84,4 @@ No Python loops over pixels — only tensor slicing.
 Supports Batch or Single Image:
 
 Works with (C, H, W) or (B, C, H, W) shapes.
-
+'''

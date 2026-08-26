@@ -44,6 +44,7 @@ if __name__ == "__main__":
         print("Batch labels:", labels)
         break
 
+'''
 Key Improvements
 torch.roll
 
@@ -56,3 +57,4 @@ Instead of looping over each image in the collate function, we stack first, then
 GPU Support
 
 If you move the batch to CUDA (imgs.to(device)), the shift happens on GPU automatically.
+'''
