@@ -18,19 +18,22 @@ from torch.utils.data import DataLoader, Dataset
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-resnet18_model = models.resnet18(weights='DEFAULT').to(device)
+resnet_model = models.resnet152(weights='DEFAULT').to(device)
+summary(resnet_model, (3,224,224))
+print(resnet_model)
 
-summary(resnet18_model, (3,224,224))
-print(resnet18_model)
+test_data_dir = '/home/fred/PyTorch/ModernComputerVisionWithPyTorchBook/cats-and-dogs/test_set'
+## test_data_dir = 'C:/dev/test_scripts/ComputerVisionWithPyTorch/cats-and-dogs/test_set' 
 
-test_data_dir = 'C:/dev/test_scripts/ComputerVisionWithPyTorch/cats-and-dogs/test_set' 
-training_data_dir = 'C:/dev/test_scripts/ComputerVisionWithPyTorch/cats-and-dogs/training_set'
+training_data_dir = '/home/fred/PyTorch/ModernComputerVisionWithPyTorchBook/cats-and-dogs/training_set'
+## training_data_dir = 'C:/dev/test_scripts/ComputerVisionWithPyTorch/cats-and-dogs/training_set'
+
 
 class CatsAndDogs(Dataset):
     def __init__(self, directory):
         cats = glob(directory + '/cats/*.jpg')
         dogs = glob(directory + '/dogs/*.jpg')
-        self.fpaths = cats[:500] + dogs[:500]
+        self.fpaths = cats + dogs
         self.normalize = transforms.Normalize(
                 mean=[0.485, 0.456, 0.406],
                 std=[0.229, 0.224, 0.225])
@@ -90,26 +93,23 @@ plt.imshow(img_denorm.permute(1, 2, 0).cpu().numpy())
 plt.show()
 
 def get_model():
-    model = models.resnet18(weights='DEFAULT').to(device)
+    model = models.resnet152(weights='DEFAULT').to(device)
 
     for param in model.parameters():
         param.requires_grad = False
 
     model.avgpool = nn.AdaptiveAvgPool2d(output_size=(1,1))
-    model.classifier = nn.Sequential(
+    model.fc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(512,128),
+            nn.Linear(2048,256),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(128,1),
+            nn.Linear(256,1),
             nn.Sigmoid())
     loss_func = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
     return model.to(device), loss_func, optimizer
 
-model, loss_func, optimizer = get_model()
-summary(model, (3,224,224))
-print(model)
     
 def train_batch(x, y, model, optimizer, loss_func):
     model.train()
@@ -141,11 +141,13 @@ def get_data():
 
 train_data, validate_data = get_data()
 model, loss_func, optimizer = get_model()
+summary(model, (3,224,224))
+print(model)
 
 train_losses, train_accuracies = [], []
 validate_accuracies = []
 
-for epoch in range(5):
+for epoch in range(50):
     print(f'Running Epoch {epoch+1}')
     train_epoch_losses, train_epoch_accuracies = [], []
     validate_epoch_accuracies = []
@@ -172,11 +174,11 @@ for epoch in range(5):
     train_accuracies.append(train_epoch_accuracy)
     validate_accuracies.append(validate_epoch_accuracy)
 
-epochs = np.arange(5) + 1
+epochs = np.arange(50) + 1
 plt.plot(epochs, train_accuracies, 'bo', label='Training Accuracy')
 plt.plot(epochs, validate_accuracies, 'r', label='Validation Accuracy')
 plt.gca().xaxis.set_major_locator(mticker.MultipleLocator(1))
-plt.title('Training and Validation Accuracy with VGG16')
+plt.title('Training and Validation Accuracy with ResNet152')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
 plt.ylim(0.95,1)
