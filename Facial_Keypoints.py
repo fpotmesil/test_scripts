@@ -136,13 +136,29 @@ for epoch in range(n_epochs):
 epochs = np.arange(n_epochs)+1
 plt.plot(epochs, train_loss, 'bo', label='Training Loss')
 plt.plot(epochs, test_loss, 'r', label='Test Loss')
-plt.Title('Training and Test Losses over increasing epochs')
+plt.title('Training and Test Losses over increasing epochs')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 plt.grid('off')
 plt.show()
 
+for ix in range(5):
+    plt.figure(figsize=(10,10))
+    plt.subplot(221)
+    plt.title('Original Image')
+    img = test_dataset.load(ix)
+    plt.imshow(img)
+    plt.grid(False)
+
+    plt.subplot(222)
+    plt.title('Image with Facial Keypoints')
+    x, _ = test_dataset[ix]
+    plt.imshow(img)
+    kp = model(x[None]).flatten().detach().cpu()
+    plt.scatter(kp[:68]*224, kp[68:]*224, c='r')
+    plt.grid(False)
+    plt.show()
 
 
 print('Okey-dokey, that is all now!')
